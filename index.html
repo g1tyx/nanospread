@@ -1,0 +1,421 @@
+<!DOCTYPE HTML>
+<html lang="en" style="height:100%">
+<head>
+    <meta charset="UTF-8">
+    <!-- to force a reload -->
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+
+        <title>纳米扩散 - Nanospread</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body id="theBody" style="font-family:Arial, Helvetica, serif;color:black;font-size:0px;background-color:black;height:100%;margin:0;" oncontextmenu="return false;">
+<script src="chs.js?202106041511"></script>
+<script src="//g8hh.com/zh/core.js"></script>
+
+<div id="container" style="display:block; margin:auto; height:100%; width:800px;">
+
+<div id="gridSpace" style="background-color:grey;position:relative;overflow:hidden;height:100%;width:100%">
+    <div id="naniteGridPosition" style="position:relative;height:100%;">
+        <div id="naniteGrid" style="">
+        </div>
+    </div>
+    <div id="scrollWest" class="scrollArrow" onclick="theView.shiftRight()" style=""></div>
+    <div id="scrollEast" class="scrollArrow" onclick="theView.shiftLeft()" style=""></div>
+    <div id="scrollNorth" class="scrollArrow" onclick="theView.shiftDown()" style=""></div>
+    <div id="scrollSouth" class="scrollArrow" onclick="theView.shiftUp()" style=""></div>
+    <div id="levelName" style="position:absolute;font-size:30px;color:black;left:20px;top:5px;"></div>
+</div>
+
+<div id="dragSelectDiv" style="display:none;border:2px solid yellow;border-radius:1px;position:absolute;"></div>
+
+<div id="imessedup" class="small" style="position:absolute;left:200px;top:200px;background-color:blue;padding:10px;display:none;">
+    To all existing players:<br>
+    I've made significant changes to the EP gain formula, as it grew far more than I intended. I've <br>
+    now changed the formula to be more like what I wanted.<br>
+    Unfortunately, to avoid immediately ruining the game experience, I have to remove large amounts<br>
+    of EP that you already gained. You will keep up to 1000 EP, which for you means you have <div id="messedupEP"></div> now.<br>
+    I apologize for the inconvenience, and I will strive avoid such mistakes in the future.<br><br>
+    If you have any feedback on the game, please send me a message on reddit using <a href="https://www.reddit.com/message/compose?to=Stop_Sign&subject=Nanospread%20Feedback">this link</a>.<br>
+    Happy consuming! <div style="cursor:pointer;" class="medium" onclick="toggleIMessedUpPopup1()">Click here to close this message.</div>
+</div>
+<div id="imessedup2" class="small" style="position:absolute;left:200px;top:200px;background-color:blue;padding:10px;display:none;">
+    To all existing players:<br>
+    I've made significant changes to levels, EP formula, and costs.<br>
+    Because this is an entirely new game, your save has been reset.<br>
+    You will keep up to 1000 EP from your existing file.<br>
+    Happy consuming! <div style="cursor:pointer;" class="medium" onclick="toggleIMessedUpPopup2()">Click here to close this message.</div>
+</div>
+
+<div id="menuBar" class="small" style="position:fixed;bottom:0;height:30px;width:800px;background-color:#8194bd;z-index:999;display:block;">
+    <!--<div class="menuButton" onclick="toggleBuild()"><i class="fa fa-microchip" style="font-size:20px;"></i> Build (B)</div>-->
+    <div class="menuButton" onclick="toggleSettingsBox()"><i class="fa fa-sliders" style="font-size:20px;"></i> Settings (Q)</div>
+    <div class="menuButton" onclick="toggleHelp()"><i class="fa fa-question-circle-o" style="font-size:20px;"></i> Help (H)</div>
+    <div class="menuButton" onclick="toggleLevelMenu()"><i class="fa fa-line-chart" style="font-size:20px;"></i> Level (L)</div>
+	<div class="menuButton" onclick="toggleUpgradeMenu()"><i class="fa fa-gear" style="font-size:20px;"></i> Upgrades (U)</div>
+    <div class="menuButton" onclick="toggleChallengesMenu()"><i class="fa fa-bar-chart" style="font-size:20px;"></i> Challenges (I)</div>
+	<div class="menuButton" onclick="toggleStatsMenu()"><i class="fa fa-bar-chart" style="font-size:20px;"></i> Stats (I)</div>
+    <div class="menuButton" style="float:right" onclick="select.selectAllActive()"><div style="margin-top:3px;">Select Active (E)</div></div>
+</div>
+
+<div id="infoPanel" class="small" style="position:fixed;bottom:30px;height:210px;width:800px;background-color:#8194bd;z-index:999;display:none;overflow:auto;">
+	<div id="statsBox" style="display:none;">
+		<div style="padding:5px;">
+			<div class="medium">Ticks:</div><div class="medium" style="margin-left:200px;">Total Achievement Bonus: </div><div id="totalAchievementBonus">0</div>%<br>
+			<div style="padding:5px;">
+				This Level: <div id="ticksThisLevel">0</div><br>
+				Highest: <div id="highestTicks">0</div>/<div id="highestTicksAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="highestTicksAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="highestTicksAchBonus">0</div><br>
+				Total: <div id="totalTicks">0</div>/<div id="totalTicksAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="totalTicksAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="totalTicksAchBonus">0</div><br>
+				Avg. Per Level: <div id="averageTicks">0</div>
+			</div><br><br>
+			<div class="medium">Nanobot Production:</div><br>
+			<div style="padding:5px;">
+				This Level: <div id="nanobotsProducedThisLevel">0</div><br>
+				Highest: <div id="highestProduced">0</div>/<div id="highestProducedAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="highestProducedAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="highestProducedAchBonus">0</div><br>
+				Total: <div id="totalProducedNanobots">0</div>/<div id="totalProducedAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="totalProducedAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="totalProducedAchBonus">0</div><br>
+				Avg. Per Level: <div id="averageProduced">0</div>
+			</div><br><br>
+			<div class="medium">Nanobots Transferred:</div><br>
+			<div style="padding:5px;">
+				This Level: <div id="nanobotsTransferredThisLevel">0</div><br>
+				Highest: <div id="highestTransferred">0</div>/<div id="highestTransferredAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="highestTransferredAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="highestTransferredAchBonus">0</div><br>
+				Total: <div id="totalTransferredNanobots">0</div>/<div id="totalTransferredAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="totalTransferredAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="totalTransferredAchBonus">0</div><br>
+				Avg. Per Level: <div id="averageTransferred">0</div>
+			</div><br><br>
+			<div class="medium">Levels and EP:</div><br>
+			<div style="padding:5px;">
+				Highest Level: <div id="highestLevel">0</div>/<div id="highestLevelAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="highestLevelAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="highestLevelAchBonus">0</div><br>
+				Total Levels: <div id="totalLevels">0</div>/<div id="totalLevelsAchNextLvl">1 </div><div style="margin-left:100px;">Level: </div><div id="totalLevelsAchLvl">0</div><div style="margin-left:50px;"> EP Bonus: </div><div id="totalLevelsAchBonus">0</div><br><br>
+				Total EP: <div id="totalEP">0</div><br>
+				EP Bonus: <div id="epBonus">0</div>%<br>
+				Available EP: <div id="availableEP">0</div><br>
+				Avg. EP Per Level: <div id="averageEPPerLevel">0</div><br>
+			</div>
+		</div>
+        <i id="backButton4" class="backButton fa fa-close" onclick="closeHelpBox()" style="font-size:24px"></i>
+    </div>
+    <div id="levelBox" style="display:none">
+		<div class="medium" style="padding:5px">
+            Current Level: <div id="currentLevel"></div>
+        </div><br>
+        <div style="padding:5px;">
+			<div id='previousLevelButton' class="menuButton" onclick="changeLevel(currentLevel-1)"><i class="fa fa-caret-square-o-left" style="font-size:20px;"></i> Previous Level</div>
+            <div id='resetLevelButton' class="menuButton" onclick="changeLevel(currentLevel)"><i class="fa fa-refresh" style="font-size:20px;"></i> Reset Current Level</div>
+            <div id='nextLevelButton' class="menuButton" onclick="changeLevel(currentLevel+1)"><i class="fa fa-caret-square-o-right" style="font-size:20px;"></i> Next Level</div>
+        </div>
+		<div style="padding:5px;">
+            Switching levels or resetting will prestige you, removing most upgrades<br>
+            You will gain evolution points equal to ((Level # + 1)^2 * 1.3^(Average Square's Bonus)) * (Achievement Bonus)<br>
+            Currently you have <div id="evolutionPoints">0</div> evolution points, giving <div id="evolutionBonus"></div>% more nanite production<br>
+            <input type="checkbox" id="levelConfirm" onclick="theView.updateLevel()">
+            <label for="levelConfirm">Confirm new level</label><br>
+            You will get <div id="evolutionGain">0</div> evolution points on new level<br>
+            <input type="checkbox" id="resetAvailableEP">
+            <label for="resetAvailableEP">Reset Available EP on new level</label><br>
+        </div>
+		<i id="backButton1" class="backButton fa fa-close" onclick="closeLevelBox()" style="font-size:24px"></i>
+    </div>
+	<div id="upgradeBox" style="display:none">
+        <div class="medium" style="padding:5px;position:absolute;">
+            Available EP: <div id="currentEP">0</div>
+        </div>
+        <div class="tabContainer">
+            <div class="tabSelect upgradeTab" onclick="openUpgradeTab()"><i class="fa fa-gear" style="font-size:20px;"></i> EP Upgrades</div>
+            <div class="tabSelect growthTab" onclick="openGrowthTab()"><i class="fa fa-bar-chart" style="font-size:20px;"></i> Growth</div>
+        </div>
+        <div class="selectedScreen" id="selectedScreen">
+            <div id="upgradeScreen">
+                <div style="padding:5px;">
+                    <div id='buyTickSpeedButton' class="normalButton" onclick="buyTickSpeed()"> +10% Tick Speed </div><br>
+                    Current Tick Speed: <div id="currentTickSpeed">1</div>/sec<br>
+                    Cost: <div id="buyTickSpeedCost">10</div> EP<br>
+                    Next Cost: <div id="buyTickSpeedCostN">10</div> EP<br>
+                    Maximum of 5/sec
+                </div>
+                <div style="padding:5px;">
+                    <div id='buyTransferRateButton' class="normalButton" onclick="buyTransferRate()"> +0.001 Transfer Rate </div><br>
+                    Current Transfer Rate: <div id="currentTransferRate">0.01</div><br>
+                    Cost: <div id="buyTransferRateCost">100</div> EP<br>
+                    Next Cost: <div id="buyTransferRateCostN">10</div> EP<br>
+                    Maximum of 0.05
+                </div>
+                <div style="padding:5px;">
+                    <div id='buyDiscountButton' class="normalButton" onclick="buyDiscountLevel()"> +<div id="nextDiscountBonus">0</div>% Cost Reduction </div><br>
+                    Nanite Cost Reduction: <div id="currentDiscountBonus">0</div>%<br>
+                    Cost: <div id="buyDiscountCost">1</div> EP<br>
+                    Next Cost: <div id="buyDiscountCostN">10</div> EP<br>
+                    <div id="blankSpace"> </div>
+                </div>
+                <div style="padding:5px;">1.
+                    <div id='buyAbMaxButton' class="normalButton" onclick="buyAbMaxLevel()"> +1 Max Level </div><br>
+                    Autobuy Max Level: <div id="abCurrentMax">1</div><br>
+                    Cost: <div id="buyAbMaxCost">10</div> EP<br>
+                    Next Cost: <div id="buyAbMaxCostN">10</div> EP<br>
+                    Maximum of <div id="abMaxMax">0</div><br>
+                    Max increase 10 per level
+                </div>
+                <div style="padding:5px;">
+                    <div id='buyAbAmtToSpendButton' class="normalButton" onclick="buyAbAmtToSpendLevel()"> +1% Max Spent </div><br>
+                    Autobuy Max Amt. To Spend: <div id="abAmtToSpendLevel">1</div>%<br>
+                    Cost: <div id="buyAbAmtToSpendCost">100</div> EP<br>
+                    Next Cost: <div id="buyAbAmtToSpendCostN">10</div> EP<br>
+                    Maximum of 20%
+                </div>
+            </div>
+            <div id="growthScreen">
+                <div id="derivContainer">
+                    <div id="0Deriv" class="derivContainer medium">
+                        Total bonus from growth: x<div id="growthBonus"></div>
+                    </div>
+                    <div id="autoGenDerivs"></div><br>
+                    <div id="unlockNextDerivButton" onclick="buyNextDeriv()" class="normalButton">Unlock Next for <div id="derivCost"></div> permanent EP</div><br>
+                    (Must have enough available EP, and it takes from both available and permanent EP)
+                </div>
+            </div>
+        </div>
+        <i id="backButton2" class="backButton fa fa-close" onclick="closeUpgradeBox()" style="font-size:24px"></i>
+    </div>
+    <div id="challengesBox" style="display:none;">
+		<div style="padding:5px;">
+
+		</div>
+		<i id="backButton4" class="backButton fa fa-close" onclick="closeHelpBox()" style="font-size:24px"></i>
+    </div>
+    <div id="buildBox" style="display:none;">
+        <!--fa fa-truck, microchip, industry -->
+        <div class="buildingTypeContainer">
+            <div class="buildIconContainer">
+                <i class="fa truck" onclick="" style="font-size:24px;"></i>
+                2x1 Road
+            </div>
+            <div class="buildIconContainer">
+                <i class="rotate fa truck" onclick="" style="font-size:24px;"></i>
+
+            </div>
+        </div>
+    </div>
+    <div id="helpBox" style="display:none;padding-left:5px;">
+        Click on the starting Square and upgrade it.<br>
+        Point it at the Square you want to activate next.<br>
+        Cost goes up every bonus level, but nanite production doubles. The first bonus level is at 10, then every 25, increasing later.<br>
+        Every second, a Square generates its own nanites, and sends nanites to another Square.<br>
+        Nanites Sent per second = Transfer Rate * Total Nanites<br>
+        Capture all the Squares and improve them before changing levels<br><br>
+        'Lowest' will show the square with the least upgrades, then least nanites.<br>
+        Click and drag to select multiple.<br>
+        The total nanite consume cost of a level goes up 2x per level.<br>
+        Press the WASD / arrow keys to change direction, X to remove direction<br>
+        Press shift WASD / arrow keys to select the next square<br>
+        Press enter / space to buy upgrades of the selected<br>
+        Click the edges of the screen (or right click and drag) to scroll around<br><br>
+        <div class="menuButton" onclick="save()">Save Manually</div><br>
+        <input id="exportImport"><label for="exportImport">Export/Import</label><br>
+        Click Export to export to your clipboard (ctrl-v somewhere else).<br>
+        Paste a save and click Import to import.<br>
+        Sorry for lag when pasting save.<br>
+        <div class="menuButton" onclick="exportSave()">Export</div><br>
+        <div class="menuButton" onclick="importSave()">Import</div> WARNING: Import will break the game if invalid save. Empty import will hard clear the game<br>
+        For discord, <a href="https://discord.gg/r3UTaQW">click here</a>
+        <i id="backButton3" class="backButton fa fa-close" onclick="closeHelpBox()" style="font-size:24px"></i>
+    </div>
+    <div id="settingsBox" style="display:none;">
+        <div class="settingContainer">
+            When clicking Squares on the grid:<br>
+            <input id='selectOne' type="radio" name="selectOneOrMultiple" onclick="selectOneOrMultipleSetting(0)"><label for="selectOne">Select One</label><br>
+            <input id='selectMultiple' type="radio" name="selectOneOrMultiple" onclick="selectOneOrMultipleSetting(1)"><label for="selectMultiple">Select Multiple</label><br>
+        </div>
+        <div class="settingContainer">
+            When buying an upgrade for multiple Squares:<br>
+            <input id='selectBuyLowest' type="radio" name="selectBuyLowestOrAll" onclick="selectBuyLowestOrAll(0)"><label for="selectBuyLowest">Buy Squares with lowest upgrade amount, all together</label><br>
+            <input id='selectBuyLowestEach' type="radio" name="selectBuyLowestOrAll" onclick="selectBuyLowestOrAll(2)"><label for="selectBuyLowestEach">Buy Squares with lowest upgrade amount, each tries</label><br>
+            <input id='selectAllBuy' type="radio" name="selectBuyLowestOrAll" onclick="selectBuyLowestOrAll(1)"><label for="selectAllBuy">Every Square tries to buy</label><br>
+        </div>
+        <div class="settingContainer">
+            When selecting multiple Squares,<br>the upgrade amount/cost will:<br>
+            <input id='selectLast' type="radio" name="selectLastOrLowest" onclick="selectLastOrLowest(0)"><label for="selectLast">Show Last Selected</label><br>
+            <input id='selectLowest' type="radio" name="selectLastOrLowest" onclick="selectLastOrLowest(1)"><label for="selectLowest">Show Lowest</label><br>
+        </div>
+        <div class="settingContainer">
+            When selecting multiple Squares, the borders colors are:<br>
+            <input id='selectSameColor' type="radio" name="selectAllOrLowestBorderColor" onclick="selectAllOrLowestBorderColor(0)"><label for="selectSameColor">The same color</label><br>
+            <input id='selectLowestColor' type="radio" name="selectAllOrLowestBorderColor" onclick="selectAllOrLowestBorderColor(1)"><label for="selectLowestColor">Lowest Squares are a different color</label><br>
+        </div>
+        <div class="settingContainer">
+            Show what on the Square:<br>
+            <input id='selectShowNone' type="radio" name="selectShowNoneOrNanitesOrAmount" onclick="selectShowNoneOrNanitesOrAmount(0)"><label for="selectShowNone">None</label><br>
+            <input id='selectShowNanites' type="radio" name="selectShowNoneOrNanitesOrAmount" onclick="selectShowNoneOrNanitesOrAmount(1)"><label for="selectShowNanites">Nanites</label><br>
+            <input id='selectShowUpgradeAmount' type="radio" name="selectShowNoneOrNanitesOrAmount" onclick="selectShowNoneOrNanitesOrAmount(2)"><label for="selectShowUpgradeAmount">Upgrade Amount</label><br>
+            <input id='selectShowBoth' type="radio" name="selectShowNoneOrNanitesOrAmount" onclick="selectShowNoneOrNanitesOrAmount(3)"><label for="selectShowBoth">Both</label><br>
+        </div>
+        <div class="settingContainer">
+            Grid Font Color:<br>
+            <input id='selectFontDefault' type="radio" name="selectGridFont" onclick="selectGridFont(0)"><label for="selectFontDefault">Default</label><br>
+            <input id='selectFontHyperVisible' type="radio" name="selectGridFont" onclick="selectGridFont(1)"><label for="selectFontHyperVisible">Hyper Visible</label><br>
+        </div>
+        <!--<div class="settingContainer">-->
+            <!--When buying upgrades:<br>-->
+            <!--<input id='selectRounding' type="radio" name="selectOneOrMultiple" onclick="selectOneOrMultipleSetting(0)" checked><label for="selectRounding">Automatic Rounding</label><br>-->
+            <!--<input id='selectNoRounding' type="radio" name="selectOneOrMultiple" onclick="selectOneOrMultipleSetting(1)"><label for="selectNoRounding">No Rounding</label><br>-->
+        <!--</div>-->
+
+        <i id="closeButton2" class="closeButton fa fa-close" onclick="closeSettingsBox()"></i>
+    </div>
+    <div id="infoBox" style="">
+
+        <div id="resourceTypeLabel" class="large">Nanites</div><br>
+        <div id="infoGrid" class="small">
+            <div class="col" style="width:91px;text-align:right;margin-right:10px;">
+                <div class="row"></div>
+                <div class="largeRow"><div id="totalLabel">Total:</div></div>
+                <div class="medRow"><div id="netLabel">Net:</div></div>
+                <div class="row"><div id="createdLabel">Created:</div></div>
+                <div class="row"><div id="receivedLabel">Received:</div></div>
+                <div class="row"><div id="sentLabel">Sent:</div></div>
+                <div class="row"><div id="transferRateLabel">Transfer Rate:</div></div>
+                <div class="row" style="display:none"><div id="equilibriumLabel">Equilibrium:</div></div>
+                <div class="row"><div id="consumeCostLabel">Consume Cost:</div></div>
+            </div>
+            <div id="infoGridSingle" class="col">
+                <div class="rowLabel" id="selectedTypeLabel">Amount</div>
+                <div class="largeRow"><div id="totalTs"></div></div>
+                <div class="medRow"><div id="netTs"></div></div>
+                <div class="row"><div id="totalTRate"></div></div>
+                <div class="row"><div id="totalTAmountReceived"></div></div>
+                <div class="row"><div id="totalTTransferAmount"></div></div>
+                <div class="row"><div id="totalTransferRate"></div></div>
+                <div class="row" style="display:none"><div id="totalTEquilibrium"></div></div>
+                <div class="row"><div id="totalConsumeCost"></div></div>
+            </div>
+            <div id="infoGridAverage" class="col">
+                <div class="rowLabel">Average</div>
+                <div class="largeRow"><div id="averageTs"></div></div>
+                <div class="medRow"><div id="averageNetTs"></div></div>
+                <div class="row"><div id="averageTRate"></div></div>
+                <div class="row"><div id="averageTAmountReceived"></div></div>
+                <div class="row"><div id="averageTTransferAmount"></div></div>
+                <div class="row"><div id="averageTransferRate"></div></div>
+                <div class="row" style="display:none"><div id="averageTEquilibrium"></div></div>
+                <div class="row"><div id="averageConsumeCost"></div></div>
+            </div>
+            <div id="infoGridLowest" class="col">
+                <div class="rowLabel">Lowest</div>
+                <div class="largeRow"><div id="lowestTs"></div></div>
+                <div class="medRow"><div id="lowestNetTs"></div></div>
+                <div class="row"><div id="lowestTRate"></div></div>
+                <div class="row"><div id="lowestTAmountReceived"></div></div>
+                <div class="row"><div id="lowestTTransferAmount"></div></div>
+                <div class="row"><div id="lowestTransferRate"></div></div>
+                <div class="row" style="display:none"><div id="lowestTEquilibrium"></div></div>
+                <div class="row"><div id="lowestConsumeCost"></div></div>
+            </div>
+
+            <!--<div id="transferRateContainer" class="resourceBlock" style="margin-top:5px;">-->
+                <!--<div>Transfer Rate: <div id="transferRate"></div>%</div>-->
+            <!--</div>-->
+            <!--<div id="totalConsumeCostContainer" class="resourceBlock">-->
+                <!--<div id="totalConsumeCostLabel" class="resourceLabel"></div>-->
+                <!--<div id="totalConsumeCost"></div>-->
+            <!--</div>-->
+        </div>
+		<div id="autobuyContainer" style="padding:5px;position:absolute;">
+			Autobuy
+			<div id="autobuyToggleContainer">
+                <div id="autobuyOff" class="autobuyToggle" onclick="toggleAutobuy(0)" style="background-color:#ff4400">Off</div>
+                <div id="autobuyOn" class="autobuyToggle" onclick="toggleAutobuy(1)">On</div>
+			</div><br>
+			Amount
+			<div id="autobuyAmountOptionContainer">
+                <div id="autobuy1" class="autobuyAmountOption" onclick="autobuyAmountOption(1)" style="background-color:#ff4400">1</div>
+                <div id="autobuy5" class="autobuyAmountOption" onclick="autobuyAmountOption(5)">5</div>
+                <div id="autobuy10" class="autobuyAmountOption" onclick="autobuyAmountOption(10)">10</div>
+                <div id="autobuy25" class="autobuyAmountOption" onclick="autobuyAmountOption(25)">25</div>
+                <div id="autobuy50" class="autobuyAmountOption" onclick="autobuyAmountOption(50)">50</div>
+                <div id="autobuy100" class="autobuyAmountOption" onclick="autobuyAmountOption(100)">100</div>
+            </div>
+		</div>
+		<div id="buttonContainer">
+            Buy Per Click:
+            <div id="buyAmountOptionContainer">
+                <div id="buy1" class="buyAmountOption" onclick="buyAmountOption(1)" style="background-color:#ff4400">1</div>
+                <div id="buy5" class="buyAmountOption" onclick="buyAmountOption(5)">5</div>
+                <div id="buy10" class="buyAmountOption" onclick="buyAmountOption(10)">10</div>
+                <div id="buy25" class="buyAmountOption" onclick="buyAmountOption(25)">25</div>
+                <div id="buy50" class="buyAmountOption" onclick="buyAmountOption(50)">50</div>
+                <div id="buy100" class="buyAmountOption" onclick="buyAmountOption(100)">100</div>
+                <div id="buyNext" class="buyAmountOption" onclick="buyAmountOption('Next')">Next</div>
+            </div>
+            <div id="buyNanitesButton" class="buyButton" onclick="buyNanitesButtonPressed()">
+                <div id="naniteAmount" style="font-size:18px;"></div>
+                <div id="naniteCost"></div>
+                <div id="naniteBenefit"></div>
+                <div id="naniteSpecialNext"></div>
+                <div id="numSelectedNanitesButtonBuyable" style="position:absolute;right:5px;top:2px;"></div>
+            </div>
+            <div id="buyAdvBotsButton" class="buyButton" onclick="buyAdvBotsButtonPressed()" style="display:none;">
+                <div id="advBotAmount" style="font-size:18px;"></div>
+                <div id="advBotCost"></div>
+                <div id="advBotBenefit"></div>
+                <div id="advBotSpecialNext"></div>
+                <div id="numSelectedAdvBotsButtonBuyable" style="position:absolute;right:5px;top:2px;"></div>
+            </div>
+        </div>
+        <i id="closeButton" class="closeButton fa fa-close" onclick="select.deselectAll()"></i>
+        <i id="leftArrow" class="fa fa-arrow-circle-left arrow" onclick="changeDirectionOfSelected('West')"></i>
+        <i id="rightArrow" class="fa fa-arrow-circle-right arrow" onclick="changeDirectionOfSelected('East')"></i>
+        <i id="upArrow" class="fa fa-arrow-circle-up arrow" onclick="changeDirectionOfSelected('North')"></i>
+        <i id="downArrow" class="fa fa-arrow-circle-down arrow" onclick="changeDirectionOfSelected('South')"></i>
+        <i id="noArrow" class="fa fa-stop-circle arrow" onclick="changeDirectionOfSelected('None')"></i>
+
+    </div>
+
+</div>
+</div>
+</body>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-60978932-1', 'auto');
+    ga('send', 'pageview');
+
+</script>
+<script src="helpers.js"></script>
+<script src="select.js"></script>
+<script src="view.js"></script>
+<script src="Square.js"></script>
+<script src="levelData.js"></script>
+<script src="game.js"></script>
+<script src="hotkeys.js"></script>
+<script src="settings.js"></script>
+<script src="saving.js"></script>
+<!--客服 开始-->
+<script src="//g8hh.com/static/js/jquery.min.js"></script>
+<link rel="stylesheet" href="//g8hh.com/static/css/kf.css" type="text/css" media="screen" charset="utf-8">
+<script src="//g8hh.com/static/js/kf.js"></script>
+<!-- 客服 结束 -->
+<!--站长统计--> 
+<div style="display: none">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?028b1b5f659ed138230f4cafd7ad0dfc";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    </div>
+
+<style>
+    div.main-im div{display: block;}
+    </style>
+
+</html>
